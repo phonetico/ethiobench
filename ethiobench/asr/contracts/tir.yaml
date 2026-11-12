@@ -1,0 +1,99 @@
+# Tigrinya normalization contract for EthioBench scoring.
+# Layers as in amh.yaml. Nothing is inherited from Amharic.
+
+language: tir
+version: 0.2.1
+
+
+conforms_to:
+  implementation: null
+  note: >
+    Tigrinya declares no folds. The characters Amharic merged are distinct
+    sounds in Tigrinya.
+
+# The fillers written in the verified references. Provisional, pending the
+# Tigrinya team's proposal.
+filler_inventory:
+  version: "tir-observed-1.0"
+  classes:
+    tir: [እ, እም]
+    eng: [um, uh]
+  source: observed in verified Tigrinya references; provisional
+
+pipeline:
+
+  base:
+
+    - step: unicode_nfc
+      justification: >
+        One Ge'ez character can be encoded as different code-point sequences.
+        NFC gives each a single form, so text that looks identical compares equal.
+
+    - step: strip_zero_width
+      justification: >
+        Zero-width characters carry no text and would otherwise count as token
+        content.
+
+    - step: strip_bracket_tags
+      justification: >
+        The closed bracket tags mark non-speech and unscoreable regions. Tags
+        are removed in both modes.
+
+    - step: mark_fragments
+      justification: >
+        A trailing hyphen marks a word the speaker began and did not finish.
+        The marker is read before punctuation removal deletes it.
+
+    - step: numerals
+      direction: to_digits
+      justification: >
+        Number words and digits are rewritten to one value on both sides before
+        punctuation removal, so any reading of a digit string is accepted. The
+        Tigrinya references record no digit form, which as_recorded needs.
+        --numerals selects to_words or off and every result records it.
+
+    - step: remove_punctuation
+      justification: >
+        Punctuation is not acoustic content. Marks become word boundaries.
+        Inside a number a decimal point is kept and a digit-group comma removed.
+      retains: [decimal_point]
+
+    - step: casefold
+      justification: >
+        Ge'ez has no case, so this applies to embedded Latin only.
+
+    - step: collapse_whitespace
+      justification: >
+        Tokens are split on whitespace.
+
+  fluent:
+
+    - step: remove_fillers
+      justification: >
+        The inventory's fillers are removed from both sides.
+
+    - step: remove_fragments
+      sides: [reference]
+      justification: >
+        Unfinished words are removed from the reference only.
+
+  verbatim:
+
+    - step: unmark_fragments
+      justification: >
+        A fragment is kept without its marker.
+
+    - step: filler_equivalence
+      justification: >
+        Fillers are equivalent within one language class.
+
+# No wer_n layer: WER-N equals WER. The letters Amharic merges are the majority
+# of their series in Tigrinya and their use is lexical, so folding would score
+# wrong characters as correct.
+
+pending:
+
+  - step: normalize_loanwords
+    blocked_by: no Tigrinya variant table
+    justification: >
+      No Tigrinya loanword table exists, and the Amharic one does not transfer.

@@ -1,0 +1,83 @@
+==============================================================================
+  tir.yaml  version 0.2.1
+==============================================================================
+
+------------------------------------------------------------------------------
+BASE  (8 steps, applied in this order)
+------------------------------------------------------------------------------
+
+  1. unicode_nfc
+      One Ge'ez character can be encoded as different code-point sequences. NFC
+      gives each a single form, so text that looks identical compares equal.
+
+  2. strip_zero_width
+      Zero-width characters carry no text and would otherwise count as token
+      content.
+
+  3. strip_bracket_tags
+      The closed bracket tags mark non-speech and unscoreable regions. Tags are
+      removed in both modes.
+
+  4. mark_fragments
+      A trailing hyphen marks a word the speaker began and did not finish. The
+      marker is read before punctuation removal deletes it.
+
+  5. numerals
+      Number words and digits are rewritten to one value on both sides before
+      punctuation removal, so any reading of a digit string is accepted. The
+      Tigrinya references record no digit form, which as_recorded needs.
+      --numerals selects to_words or off and every result records it.
+
+  6. remove_punctuation
+      Punctuation is not acoustic content. Marks become word boundaries. Inside
+      a number a decimal point is kept and a digit-group comma removed.
+
+  7. casefold
+      Ge'ez has no case, so this applies to embedded Latin only.
+
+  8. collapse_whitespace
+      Tokens are split on whitespace.
+
+------------------------------------------------------------------------------
+FLUENT  (2 steps, applied in this order)
+------------------------------------------------------------------------------
+
+  1. remove_fillers
+      The inventory's fillers are removed from both sides.
+
+  2. remove_fragments
+      Unfinished words are removed from the reference only.
+
+------------------------------------------------------------------------------
+VERBATIM  (2 steps, applied in this order)
+------------------------------------------------------------------------------
+
+  1. unmark_fragments
+      A fragment is kept without its marker.
+
+  2. filler_equivalence
+      Fillers are equivalent within one language class.
+
+------------------------------------------------------------------------------
+WER-N EQUIVALENCE LAYER  (0 sets, 0 folds)
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+THE RESOLVED FOLD TABLE  (0 characters change)
+------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
+FILLER INVENTORY  (version tir-observed-1.0)
+------------------------------------------------------------------------------
+   tir: እ እም
+   eng: um uh
+      Equivalence holds inside a class, never across. observed in verified
+      Tigrinya references; provisional
+
+------------------------------------------------------------------------------
+DECLARED BUT NOT APPLIED  (1)
+------------------------------------------------------------------------------
+
+   normalize_loanwords   blocked_by no Tigrinya variant table
+      No Tigrinya loanword table exists, and the Amharic one does not transfer.
+

@@ -1,0 +1,144 @@
+# Amharic loanword table. Per word: the canonical form; a pattern, one
+# alternation set per letter position, anything it generates being the same
+# word (lenient folds it); patterns for other lengths; the strict list, the
+# established spellings (strict folds these only); and the assigned tier.
+word	canonical	pattern	alternative patterns	strict	tier
+Hello	ሄሎ	ሄሎ		ሄሎ	Code-Switching
+Life	ላይፍ	ላይፍ		ላይፍ	Code-Switching
+Level	ሌቭል	[ለሌ][ቨቭ]ል		ሌቭል	Code-Switching
+Million	ሚሊዮን	ሚ[ልሊ][ዮየ]ን		ሚሊዮን ሚሊየን	Loanword
+Ministry	ሚኒስቴር	[ሚም][ኒን]ስ[ተቴ]ር		ሚኒስቴር	Loanword
+minister	ሚኒስትር	ሚኒስትር		ሚኒስትር	Unruled
+Medium	ሚዲየም	ሚዲየም		ሚዲየም	Loanword
+Media	ሚዲያ	ሚ[ድዲ]ያ		ሚዲያ	Loanword
+Matter	ማተር	ማተር		ማተር	Code-Switching
+Maturity	ማቹሪቲ	ማቹሪቲ		ማቹሪቲ	Code-Switching
+Mature	ማቹር	ማቹር		ማቹር	Code-Switching
+Meter	ሜትር	ሜትር		ሜትር	Loanword
+More	ሞር	ሞር		ሞር	Code-Switching
+Motor	ሞተር	ሞተር		ሞተር	Loanword
+Model	ሞዴል	ሞ[ዴደ]ል		ሞዴል	Loanword
+Relation	ሪሌሽን	ሪሌሽን		ሪሌሽን	Code-Switching
+Relationship	ሪሌሽንሺፕ	ሪሌሽንሺፕ		ሪሌሽንሺፕ	Code-Switching
+Reform	ሪፎርም	ሪፎርም		ሪፎርም	Loanword
+Republic	ሪፐብሊክ	[ሪሬ][ፓፑፐ]ብሊክ		ሪፐብሊክ	Loanword
+Report	ሪፖርት	ሪፖርት		ሪፖርት	Loanword
+Service	ሰርቪስ	ሰርቪስ		ሰርቪስ	Loanword
+Support	ሰፖርት	ሰፖርት		ሰፖርት	Code-Switching
+System	ሲስተም	ሲስተም		ሲስተም	Loanword
+Psychiatrist	ሳይካትሪስት	ሳይካ[ትታ]ሪስት		ሳይካትሪስት	Loanword
+Side	ሳይድ	ሳይድ		ሳይድ	Code-Switching
+	ሳፖርት	ሳፖርት		ሳፖርት	Unruled
+Sector	ሴክተር	ሴክተር		ሴክተር	Loanword
+Statistics	ስታቲስቲክስ	ስታ[ትቲ]ስቲክስ		ስታቲስቲክስ ስታትስቲክስ	Loanword
+Standard	ስታንዳርድ	ስታን[ዳደ]ርድ		ስታንዳርድ	Loanword
+Strategy	ስትራቴጂ	ስትራ[ተቴ]ጂ		ስትራቴጂ	Loanword
+Strategic	ስትራቴጂክ	ስትራ[ቴተ][ጂጅ]ክ		ስትራቴጂክ	Loanword
+Spirit 	ስፒሪት	ስ[ፕፒ]ሪት		ስፒሪት	Code-Switching
+special	ስፓሻል	ስፓሻል		ስፓሻል	Unruled
+Especially	ስፔሻሊ	ስፔሻሊ		ስፔሻሊ	Code-Switching
+special	ስፔሻል	ስፔሻል		ስፔሻል	Unruled
+Sport	ስፖርት	ስፖርት		ስፖርት	Loanword
+So	ሶ	ሶ		ሶ	Code-Switching
+Social	ሶሻል	ሶሻል		ሶሻል	Code-Switching
+Social media	ሶሻል ሚዲያ	ሶሻል ሚዲያ		ሶሻል ሚዲያ	Loanword
+Share	ሼር	ሼር		ሼር	Loanword
+Budget	በጀት	[ባበ]ጀት		በጀት	Loanword
+Federally / At federal level	በፌደራል	በፌ[ዴደ]ራል		በፌደራል በፌዴራል	Loanword
+Business	ቢዝነስ	ቢዝነስ		ቢዝነስ	Loanword
+At least	ቢያንስ	ቢያንስ		ቢያንስ	Native
+Bank	ባንክ	ባንክ		ባንክ	Loanword
+Best	ቤስት	[ቤበ]ስት		ቤስት	Code-Switching
+To / Too	ቱ	ቱ		ቱ	Code-Switching
+Think	ቲንክ	ቲንክ		ቲንክ	Code-Switching
+Thank / Tank	ታንክ	[ታቴ]ንክ		ታንክ	Code-Switching
+Tax	ታክስ	ታክስ		ታክስ	Loanword
+Time	ታይም	ታ[ዬይ]ም		ታይም	Code-Switching
+Thank you	ቴንኪው	[ቴታ]ን[ኪክ][ውዩ]		ቴንኪው	Code-Switching
+Technology	ቴክኖሎጂ	ቴክኖሎጂ		ቴክኖሎጂ	Loanword
+Cheat / Chit	ቺት	ቺት		ቺት	Code-Switching
+Challenge	ቻሌንጅ	ቻሌንጅ		ቻሌንጅ	Code-Switching
+Check	ቼክ	ቼክ		ቼክ	Code-Switching
+No	ኖ	ኖ		ኖ	Code-Switching
+normally	ኖርማሊ	ኖርማሊ		ኖርማሊ	Unruled
+Normal	ኖርማል	ኖርማል		ኖርማል	Loanword
+Alcohol	አልኮል	አልኮል		አልኮል	Loanword
+At least	አትሊስት	አትሊስት		አትሊስት	Code-Switching
+Account	አካውንት	አካውንት		አካውንት	Loanword
+Access	አክሰስ	አክሰስ		አክሰስ	Loanword
+No / Oh / Eye	አይ	አይ		አይ	Native / Code-Switching
+Agenda	አጀንዳ	አጀንዳ		አጀንዳ	Loanword
+affect	አፌክት	አፌክት		አፌክት	Unruled
+Issue	ኢሹ	ኢሹ		ኢሹ	Code-Switching
+Even	ኢቭን	ኢ[ቨቭ]ን		ኢቭን	Code-Switching
+In	ኢን	ኢን		ኢን	Code-Switching
+Institute	ኢንስቲትዩት	ኢ[ንኒ]ስ[ቲት][ትቲ]ዩት		ኢንስቲትዩት ኢንስቲቲዩት	Loanword
+Invest	ኢንቨስት	ኢን[ቨቬ]ስት		ኢንቨስት	Code-Switching
+Investment	ኢንቨስትመንት	ኢን[ቨቬ]ስትመንት		ኢንቨስትመንት	Loanword
+Enterprises	ኢንተርፕራይዞች	ኢንተርፕራይዞች		ኢንተርፕራይዞች	Loanword
+Industry	ኢንዱስትሪ	ኢን[ዳዱደ]ስትሪ		ኢንዱስትሪ	Loanword
+End	ኢንድ	ኢንድ		ኢንድ	Code-Switching
+Economy	ኢኮኖሚ	[ኢኤ]ኮኖሚ		ኢኮኖሚ	Loanword
+Economically	ኢኮኖሚካሊ	ኢኮኖሚካሊ		ኢኮኖሚካሊ	Code-Switching
+economical	ኢኮኖሚካል	ኢኮኖሚካል		ኢኮኖሚካል	Unruled
+Economic	ኢኮኖሚያዊ	[ኢኤ]ኮኖሚያዊ		ኢኮኖሚያዊ	Loanword
+Effect	ኢፌክት	ኢፌክት		ኢፌክት	Code-Switching
+And	ኤንድ	ኤንድ		ኤንድ	Code-Switching
+Excise	ኤክሳይስ	ኤክሳይስ		ኤክሳይስ	Loanword
+Experience	ኤክስፒሪያንስ	ኤክስ[ፒፔ][ሪር]ያንስ		ኤክስፒሪያንስ	Code-Switching
+Edit	ኤዲት	ኤዲት		ኤዲት	Loanword
+Agencies	ኤጀንሲዎች	ኤ[ጀጄ]ንሲዎች		ኤጀንሲዎች	Loanword
+Almost	ኦልሞስት	ኦልሞስት		ኦልሞስት	Code-Switching
+Already	ኦሬዲ	ኦ[ሬረ]ዲ	ኦልረዲ	ኦሬዲ	Code-Switching
+Or	ኦር	ኦር		ኦር	Code-Switching
+OK	ኦኬ	ኦኬ		ኦኬ	Code-Switching
+Auditor	ኦዲተር	[ኦኢኤ]ዲተር		ኦዲተር	Loanword
+Audit	ኦዲት	ኦዲት		ኦዲት	Loanword
+Of	ኦፍ	ኦፍ		ኦፍ	Code-Switching
+Kitchen	ኪችን	ኪችን		ኪችን	Code-Switching
+Counseling	ካውንስሊንግ	ካውንስሊንግ		ካውንስሊንግ	Code-Switching/Loanword
+Colleges	ኮሌጆች	ኮሌጆች		ኮሌጆች	Loanword
+Commission	ኮሚሽን	ኮ[ምሚ]ሽን		ኮሚሽን	Loanword
+Committee	ኮሚቴ	ኮሚቴ		ኮሚቴ	Loanword
+Community	ኮሚኒቲ	ኮ[ምሚ]ኒቲ		ኮሚኒቲ	Loanword
+Comment	ኮሜንት	ኮ[ሚመሜ]ንት		ኮሜንት	Code-Switching
+Corporate	ኮርፖሬት	ኮርፖሬት		ኮርፖሬት	Loanword
+Or / Either / Oh	ወይ	ወይ		ወይ	Native / Code-Switching
+The	ዘ	ዘ		ዘ	Code-Switching
+Of macro	የማክሮ	የማክሮ		የማክሮ	Loanword
+Technical / Of technique	የቴክኒክ	የቴክኒክ		የቴክኒክ	Loanword
+Of entrepreneurship	የአንተርፕነርሺፕ	የ[አኢ]ንተርፕነርሺፕ		የአንተርፕነርሺፕ	Loanword
+Of excise	የኤክሳይዝ	የኤክሳይዝ		የኤክሳይዝ	Loanword
+Digital / Of digital	የዲጂታል	የዲ[ጂጅ]ታል		የዲጂታል	Loanword
+Political / Of politics	የፖለቲካ	የፖለቲካ		የፖለቲካ	Loanword
+University	ዩኒቨርሲቲ	ዩ[ኒን]ቨር[ስሲ]ቲ		ዩኒቨርሲቲ ዩኒቨርስቲ	Loanword
+Discuss	ዲስከስ	ዲስከስ		ዲስከስ	Code-Switching
+Design	ዲዛይን	ዲዛይን		ዲዛይን	Loanword
+Depression	ዲፕረሽን	ዲፕ[ሬረ]ሽን		ዲፕረሽን	Loanword
+Data	ዳታ	ዳታ		ዳታ	Loanword
+Director	ዳይሬክተር	ዳይ[ሬረ]ክተር	ዳሬክተር	ዳይሬክተር	Loanword
+Democratic	ዴሞክራሲያዊ	[ዴዲደ]ሞክራ[ስሲ]ያዊ		ዴሞክራሲያዊ ዲሞክራሲያዊ	Loanword
+Doctor	ዶክተር	ዶክተር		ዶክተር	Loanword
+Doctrine	ዶክትሪን	ዶክ[ተት][ሪር]ን		ዶክትሪን	Loanword
+Just	ጀስት	ጀስት		ጀስት	Code-Switching
+Generation	ጀነሬሽን	[ጀጄ][ኔነ]ሬሽን		ጀነሬሽን	Loanword
+GDP	ጂዲፒ	ጂዲፒ		ጂዲፒ	Loanword
+Gap	ጋፕ	ጋፕ		ጋፕ	Code-Switching
+Feeling	ፊሊንግ	ፊሊንግ		ፊሊንግ	Code-Switching
+Finance	ፋይናንስ	ፋይናንስ		ፋይናንስ	Loanword
+financially	ፋይናንሻሊ	ፋይናንሻሊ		ፋይናንሻሊ	Unruled
+Financial	ፋይናንሻል	ፋይናንሻል		ፋይናንሻል	Code-Switching
+Friend	ፍሬንድ	ፍሬንድ		ፍሬንድ	Code-Switching
+Percent	ፐርሰንት	ፐርሰንት		ፐርሰንት	Loanword
+Party	ፓርቲ	ፓርቲ		ፓርቲ	Loanword
+Part	ፓርት	ፓርት		ፓርት	Code-Switching
+Please	ፕሊስ	ፕሊስ		ፕሊስ	Code-Switching
+Plus	ፕላስ	ፕላስ		ፕላስ	Code-Switching
+Plan	ፕላን	ፕላን		ፕላን	Loanword/Code switch
+President	ፕሬዝዳንት	ፕ[ሬረ][ዚዝዘ][ዳደ]ንት		ፕሬዝዳንት ፕሬዚዳንት	Loanword
+Project	ፕሮጀክት	ፕሮ[ጀጄ]ክት		ፕሮጀክት	Loanword
+Program	ፕሮግራም	ፕሮግራም		ፕሮግራም	Loanword
+Professional	ፕሮፌሽናል	ፕሮ[ፌፈ]ሽናል		ፕሮፌሽናል	Loanword
+Policy	ፖሊሲ	ፖሊሲ		ፖሊሲ	Loanword
+Police	ፖሊስ	ፖሊስ		ፖሊስ	Loanword
+Potential	ፖቴንሻል	ፖቴንሻል		ፖቴንሻል	Code-Switching

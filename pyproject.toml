@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ethiobench"
+version = "0.1.0"
+description = "EthioBench: shared Amharic and Tigrinya normalization, and the EthioBench-ASR scorer"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "CC-BY-SA-4.0"
+dependencies = [
+    "pyyaml>=6.0",
+    "rapidfuzz>=3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+ethiobench-asr = "ethiobench.asr.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ethiobench"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

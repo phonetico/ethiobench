@@ -1,0 +1,35 @@
+# Amharic abbreviation table for the expand_abbreviations step. Writing
+# abbreviates and speech does not, so an abbreviation on either side is
+# rewritten to its spoken form before scoring.
+#
+# written  a regex over the written forms of one abbreviation, `.` and `/`
+#          being the separators. Matched inside word boundaries, with a
+#          one-letter prefix allowed and a suffix's vowel change carried onto
+#          the expansion (ት/ቤቱ → ትምህርት ቤቱ).
+# spoken   the expansion, in the spelling edited Ethiopian news text uses.
+# note     what the pattern covers, and why the expansion is spelled so.
+written	spoken	note
+(?:ዓ(?:[ \t]*[./][ \t]*)?|ዐ[ \t]*[./][ \t]*)ም\.?	ዓመተ ምህረት	Ethiopian era marker. Covers ዓ.ም ዓ.ም. ዓ/ም ዓም ዓም. and the separated ዐ-initial writings (ዐ.ም, ዐ/ም), with spaces around the separator (ዓ. ም.). A bare space with no separator is not a marker, and the dotless ዐም is left alone: it is rare in writing and ዐ folds to አ, which would make አም a marker. The spelling ምህረት is the majority in edited Ethiopian news text and in written Amharic at large; ምሕረት is the minority and folds to it under WER-N.
+[ዓዐ](?:[ \t]*[./][ \t]*)?ዓ\.?	ዓመተ ዓለም	Era marker for years before the Incarnation (ዓ.ዓ, ዓ/ዓ).
+[እኢ](?:[ \t]*[./][ \t]*)?[ኤአኣ](?:[ \t]*[./][ \t]*)?[አኣ]\.?	እንደ ኤውሮፓውያን አቆጣጠር	Gregorian era marker. Covers እ.ኤ.አ እ.ኤ.አ. እ.አ.አ እ/ኤ/አ, the dotless እኤአ and እአአ, partly dotted እ.ኤአ, and the ኢ- and ኣ-letter variants, all attested in written Amharic. The expansion spells ኤውሮፓውያን, after the abbreviation's own second letter. ኤ and አ do not fold under WER-N, so the two spellings never meet and the choice decides the score.
+ት/ቤት	ትምህርት ቤት	School; spaced compound.
+[ጽፅ]/ቤት	ጽሕፈት ቤት	Office; spaced compound.
+ፍ/ቤት	ፍርድ ቤት	Court; spaced compound.
+ም/ቤት	ምክር ቤት	Council, parliament; spaced compound.
+ክ/ከተማ	ክፍለ ከተማ	Sub-city; spaced compound.
+ኪ(?:[ \t]*\.[ \t]*)?ሜ\.?	ኪሎ ሜትር	Kilometre; the trailing dot is the abbreviation's, not the sentence's.
+ኪ(?:[ \t]*\.[ \t]*)?ግ\.?	ኪሎ ግራም	Kilogram.
+ሴ(?:[ \t]*\.[ \t]*)?ሜ\.?	ሴንቲ ሜትር	Centimetre.
+ሚ(?:[ \t]*\.[ \t]*)?ሜ\.?	ሚሊ ሜትር	Millimetre.
+ዶ/ር	ዶክተር	Doctor.
+ወ/ሮ	ወይዘሮ	Mrs.
+ወ/(?:ሪት|ት)	ወይዘሪት	Miss.
+ኢ/ር	ኢንጂነር	Engineer.
+ፕ/ር	ፕሮፌሰር	Professor.
+ረ/ፕሮፌሰር	ረዳት ፕሮፌሰር	Assistant professor; ረ/ፕ alone is ambiguous with ፕሬዚዳንት and is not expanded.
+ም/ል	ምክትል	Deputy; the suffix carry gives ም/ሉ → ምክትሉ.
+ሌ/ኮ	ሌተና ኮሎኔል	Lieutenant colonel.
+ሌ/ጄ(?:ነራል)?	ሌተና ጄነራል	Lieutenant general; the frozen sets write ሌ/ጄነራል.
+ኮ/ል	ኮሎኔል	Colonel.
+ዲ/ን	ዲያቆን	Deacon.
+ጠ/ሚር	ጠቅላይ ሚኒስትር	Prime minister; ጠ/ሚ without the ር is ambiguous between the person and the ministry and is not expanded. ሚ/ር (ሚኒስትር or ሚስተር) and አ.አ (አዲስ አበባ or initials) are likewise left alone.

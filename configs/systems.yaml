@@ -1,0 +1,266 @@
+# Baseline systems as run for EthioBench. Every setting that changes a
+# system's output is declared with its reason; `revision` pins the weights and
+# an unpinned system is refused.
+# Language: set wherever the authors provide a mechanism (Whisper's language
+# token, MMS's adapter), otherwise none.
+
+systems:
+
+  - id: whisper-large-v3
+    hf_repo: openai/whisper-large-v3
+    revision: 06f233fe06e710322aca913c1bc4249a0d71fce1
+    family: seq2seq
+    dtype: float16
+    dtype_reason: Whisper's standard inference precision.
+    language: am
+    language_reason: >
+      Whisper lists Amharic. Forced, so the score does not include language
+      identification.
+    task: transcribe
+    decoding:
+      num_beams: 1
+      do_sample: false
+      max_new_tokens: 440
+    decoding_reason: >
+      Greedy: deterministic, the transformers default. The cap sits under
+      Whisper's 448-token limit; an output reaching it is flagged as a likely
+      repetition loop.
+    input_limit_s: 30
+    input_limit_reason: >
+      Whisper's encoder window. The runner refuses longer audio rather than
+      let the processor truncate it.
+
+  - id: mms-1b-all
+    hf_repo: facebook/mms-1b-all
+    revision: 3d33597edbdaaba14a8e858e2c8caa76e3cec0cd
+    family: ctc
+    dtype: float32
+    dtype_reason: Rules out half-precision instability in CTC logits.
+    target_lang: amh
+    target_lang_reason: The Amharic adapter and vocabulary, as MMS's documentation requires.
+    decoding: {strategy: greedy_argmax}
+    decoding_reason: No language model; greedy CTC is the documented inference path.
+
+  - id: ethio-asr-multilingual-1b
+    hf_repo: badrex/Ethio-ASR-multilingual-1B
+    revision: 7f6dd43f388cd16bb70f0f3662dbcfcefedc5560
+    family: ctc
+    dtype: float32
+    dtype_reason: As mms-1b-all, on which this model is fine-tuned.
+    target_lang: null
+    target_lang_reason: >
+      Joint recognition and language identification over five Ethiopian
+      languages; its documented usage passes no language.
+    decoding: {strategy: greedy_argmax}
+    decoding_reason: Greedy CTC, as in the model card's usage example.
+    output_language_tags: true
+    output_language_tags_reason: >
+      Emits a language tag at both ends ("[AMH] ... ስብሰባ[AMH]"). Stored
+      hypotheses keep the tags; the scorer removes them and reports them.
+
+  - id: ethio-asr-multilingual-600m
+    hf_repo: badrex/Ethio-ASR-multilingual-600M
+    revision: 5a099192a8a56f118d3515f70f5f44428fd29730
+    family: ctc
+    dtype: float32
+    dtype_reason: As the other CTC baselines.
+    target_lang: null
+    target_lang_reason: As ethio-asr-multilingual-1b; no language mechanism.
+    decoding: {strategy: greedy_argmax}
+    decoding_reason: Greedy CTC, as in the model card's usage example.
+    output_language_tags: true
+    output_language_tags_reason: Same five-tag vocabulary as the 1B model.
+    selection_reason: >
+      The family's best multilingual model on WAXAL (22.92 amh against 26.14
+      for the 1B), w2v-bert-2.0, CC-BY-4.0.
+
+  - id: ethio-asr-amharic
+    hf_repo: badrex/Ethio-ASR-amharic
+    revision: edda1ab0af0d3cca4f4a6fd0b17ef3726bcce12a
+    family: ctc
+    dtype: float32
+    dtype_reason: As the other CTC baselines.
+    target_lang: null
+    target_lang_reason: Monolingual Amharic (w2v-bert-2.0, 600M); no language tags.
+    decoding: {strategy: greedy_argmax}
+    decoding_reason: Greedy CTC, as in the model card's usage example.
+    selection_reason: >
+      The authors' best Amharic result (22.37 WER on WAXAL test, against 26.14
+      for the 1B multilingual).
+
+  - id: ethio-asr-tigrinya
+    hf_repo: badrex/Ethio-ASR-tigrinya
+    revision: 16b0de6027bc5b3764e10ea576bc9698cf1844a1
+    family: ctc
+    dtype: float32
+    dtype_reason: As ethio-asr-amharic.
+    target_lang: null
+    target_lang_reason: Monolingual Tigrinya model; for the Tigrinya sets only.
+    decoding: {strategy: greedy_argmax}
+    decoding_reason: Greedy CTC, as in the model card's usage example.
+
+  - id: whisper-small
+    hf_repo: openai/whisper-small
+    revision: 973afd24965f72e36ca33b3055d56a652f456b4d
+    family: seq2seq
+    dtype: float16
+    dtype_reason: As whisper-large-v3.
+    language: am
+    language_reason: As whisper-large-v3.
+    task: transcribe
+    decoding:
+      num_beams: 1
+      do_sample: false
+      max_new_tokens: 440
+    decoding_reason: As whisper-large-v3.
+    input_limit_s: 30
+    input_limit_reason: Whisper's encoder window.
+    selection_reason: Baseline in the Ethio-ASR paper (Table 3).
+
+  - id: seamless-m4t-v2-large
+    hf_repo: facebook/seamless-m4t-v2-large
+    revision: 5f8cc790b19fc3f67a61c105133b20b34e3dcb76
+    family: seamless
+    dtype: float16
+    dtype_reason: As Whisper, the other autoregressive baseline.
+    tgt_lang: amh
+    tgt_lang_reason: SeamlessM4T speech-to-text requires a target language; transcription sets it to the source.
+    decoding:
+      num_beams: 1
+      do_sample: false
+      max_new_tokens: 440
+    decoding_reason: Greedy and capped as the Whisper baselines.
+    selection_reason: Baseline in the Ethio-ASR paper (Table 3). CC-BY-NC-4.0.
+
+  # Omnilingual ASR v2 (Meta, Apache-2.0). `revision` is the checkpoint's
+  # sha256, verified before loading. Pipeline defaults: bfloat16, LLM nbest=1
+  # unnormalized, built-in compression-ratio stop. CTC takes no language code;
+  # LLM models take amh_Ethi, as the authors recommend.
+  - id: omni-ctc-300m-v2
+    model_card: omniASR_CTC_300M_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-CTC-300M-v2.pt
+    revision: 8ce340ada22435d189908a8af67e3bb04899b6f2f5329d036248b9c3e38d2b50
+    family: omni_ctc
+    dtype: bfloat16
+    lang: null
+    decoding: {strategy: pipeline_default}
+  - id: omni-ctc-1b-v2
+    model_card: omniASR_CTC_1B_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-CTC-1B-v2.pt
+    revision: 354f981756aa8f41591ea363e45b9c4eba1ec5144c2273af82e747efbb08919c
+    family: omni_ctc
+    dtype: bfloat16
+    lang: null
+    decoding: {strategy: pipeline_default}
+  - id: omni-ctc-3b-v2
+    model_card: omniASR_CTC_3B_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-CTC-3B-v2.pt
+    revision: fa7f662c326842bb80561db97631ae3c48d911aec579654a1e8414c26caf9089
+    family: omni_ctc
+    dtype: bfloat16
+    lang: null
+    decoding: {strategy: pipeline_default}
+  - id: omni-llm-300m-v2
+    model_card: omniASR_LLM_300M_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-LLM-300M-v2.pt
+    revision: 703105f3e4612a030110a1ba1ae419d5d4f75c6dc10175a38b2ddbb4bdf3817b
+    family: omni_llm
+    dtype: bfloat16
+    lang: amh_Ethi
+    decoding: {strategy: pipeline_default, nbest: 1, length_norm: false}
+  - id: omni-llm-1b-v2
+    model_card: omniASR_LLM_1B_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-LLM-1B-v2.pt
+    revision: cceb4d9ebac3d168a6af6b26c62ce11bafc562b38976c6bfa87e7d60422c6da5
+    family: omni_llm
+    dtype: bfloat16
+    lang: amh_Ethi
+    decoding: {strategy: pipeline_default, nbest: 1, length_norm: false}
+  - id: omni-llm-3b-v2
+    model_card: omniASR_LLM_3B_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-LLM-3B-v2.pt
+    revision: 6c454275703c96e5f68ce3b6315345251dfc70028b1f795cd60972150bb2a044
+    family: omni_llm
+    dtype: bfloat16
+    lang: amh_Ethi
+    decoding: {strategy: pipeline_default, nbest: 1, length_norm: false}
+  - id: omni-ctc-7b-v2
+    model_card: omniASR_CTC_7B_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-CTC-7B-v2.pt
+    revision: 8fcb2c2ec475ace73313fe69128b9c130db9c4ea57c62ec5fb87e3ae781d0357
+    family: omni_ctc
+    dtype: bfloat16
+    lang: null
+    decoding: {strategy: pipeline_default}
+  - id: omni-llm-7b-v2
+    model_card: omniASR_LLM_7B_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-LLM-7B-v2.pt
+    revision: 1b29a4045ddfbe9125e6c9d465d5bc29063eea256ace37c129742edc07aed17a
+    family: omni_llm
+    dtype: bfloat16
+    lang: amh_Ethi
+    decoding: {strategy: pipeline_default, nbest: 1, length_norm: false}
+
+  # Tigrinya: same weights as the Amharic entries, Tigrinya language mechanism.
+  # Language-agnostic systems keep their ids. Whisper and SeamlessM4T have no
+  # Tigrinya target and are not run on tir.
+  - id: mms-1b-all-tir
+    hf_repo: facebook/mms-1b-all
+    revision: 3d33597edbdaaba14a8e858e2c8caa76e3cec0cd
+    family: ctc
+    dtype: float32
+    dtype_reason: As mms-1b-all.
+    target_lang: tir
+    target_lang_reason: MMS's Tigrinya adapter and vocabulary, fetched with the model.
+    decoding: {strategy: greedy_argmax}
+    decoding_reason: As mms-1b-all.
+  - id: omni-llm-300m-v2-tir
+    model_card: omniASR_LLM_300M_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-LLM-300M-v2.pt
+    revision: 703105f3e4612a030110a1ba1ae419d5d4f75c6dc10175a38b2ddbb4bdf3817b
+    family: omni_llm
+    dtype: bfloat16
+    lang: tir_Ethi
+    decoding: {strategy: pipeline_default, nbest: 1, length_norm: false}
+  - id: omni-llm-1b-v2-tir
+    model_card: omniASR_LLM_1B_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-LLM-1B-v2.pt
+    revision: cceb4d9ebac3d168a6af6b26c62ce11bafc562b38976c6bfa87e7d60422c6da5
+    family: omni_llm
+    dtype: bfloat16
+    lang: tir_Ethi
+    decoding: {strategy: pipeline_default, nbest: 1, length_norm: false}
+  - id: omni-llm-3b-v2-tir
+    model_card: omniASR_LLM_3B_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-LLM-3B-v2.pt
+    revision: 6c454275703c96e5f68ce3b6315345251dfc70028b1f795cd60972150bb2a044
+    family: omni_llm
+    dtype: bfloat16
+    lang: tir_Ethi
+    decoding: {strategy: pipeline_default, nbest: 1, length_norm: false}
+  - id: omni-llm-7b-v2-tir
+    model_card: omniASR_LLM_7B_v2
+    checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-LLM-7B-v2.pt
+    revision: 1b29a4045ddfbe9125e6c9d465d5bc29063eea256ace37c129742edc07aed17a
+    family: omni_llm
+    dtype: bfloat16
+    lang: tir_Ethi
+    decoding: {strategy: pipeline_default, nbest: 1, length_norm: false}
+
+  - id: whisper-medium
+    hf_repo: openai/whisper-medium
+    revision: abdf7c39ab9d0397620ccaea8974cc764cd0953e
+    family: seq2seq
+    dtype: float16
+    dtype_reason: As whisper-large-v3.
+    language: am
+    language_reason: As whisper-large-v3.
+    task: transcribe
+    decoding:
+      num_beams: 1
+      do_sample: false
+      max_new_tokens: 440
+    decoding_reason: As whisper-large-v3.
+    input_limit_s: 30
+    input_limit_reason: Whisper's encoder window.
+    selection_reason: Baseline in the Ethio-ASR paper (Table 3).

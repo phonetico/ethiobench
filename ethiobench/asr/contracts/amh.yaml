@@ -1,0 +1,216 @@
+# Amharic normalization contract for EthioBench scoring.
+# A rule not in this file is not applied. An override is reported with the results.
+# Layers, in order: base (both modes), fluent, verbatim, wer_n (over either mode),
+# pending (declared, not applied; a non-empty list marks a result provisional).
+
+language: amh
+version: 0.9.0
+
+
+conforms_to:
+  note: >
+    The folds this contract applies, the characters it leaves unfolded and
+    the abbreviation expansions it reads are declared below. Agreement with
+    any other implementation is not claimed here.
+
+# Filler equivalence holds within a class, never across classes.
+filler_inventory:
+  version: "1.0-provisional"
+  classes:
+    amh: [እ, እም, አ]
+    eng: [um, uh]
+  source: Amharic provisional; English fixed
+
+pipeline:
+
+  base:
+
+    - step: unicode_nfc
+      justification: >
+        One Ge'ez character can be encoded as different code-point sequences.
+        NFC gives each a single form, so text that looks identical compares equal.
+
+    - step: strip_zero_width
+      justification: >
+        Zero-width characters carry no text and would otherwise count as token
+        content.
+
+    - step: strip_bracket_tags
+      justification: >
+        The closed tag set ([unclear:SS.S], [overlap:SS.S], [laughter], [cough],
+        [noise]) marks non-speech and unscoreable regions. Tags are removed in
+        both modes.
+
+    - step: mark_fragments
+      justification: >
+        A trailing hyphen marks a word the speaker began and did not finish.
+        The marker is read before punctuation removal deletes it. Fluent mode
+        then drops the token and verbatim mode keeps it without the hyphen.
+
+    - step: expand_abbreviations
+      table: amh_abbreviations.tsv
+      justification: >
+        A reader of 2015 ዓ.ም says ዓመተ ምህረት, and of እ.ኤ.አ says እንደ ኤውሮፓውያን
+        አቆጣጠር. References record the spoken words and systems write either
+        form, so both sides are rewritten to the spoken form before numerals
+        and punctuation. The table lists each abbreviation's written forms
+        (dotted, slashed, dotless, spaced) and the spelling of its expansion
+        in edited Ethiopian news text. Ambiguous abbreviations (ጠ/ሚ, ሚ/ር, አ.አ)
+        are left as written. Where the speaker read out the letters, the
+        reference keeps the abbreviation and both sides expand it alike.
+
+    - step: numerals
+      direction: as_recorded
+      justification: >
+        Each number span in a reference records the words spoken and their
+        digit form, paired by listening to the audio. The reference is not
+        rewritten. A hypothesis in words must match those words: ሁለት ከሰላሳ
+        against ሁለት ሰዓት ተኩል is substitutions. A hypothesis in digits matches
+        only the span's recorded digit form, which is rewritten to the span's
+        words before punctuation removal. Any other digit token stays as
+        written and misses. No parser reads either side. to_digits rewrites
+        both sides to a value with a parser, for sets without recorded spans.
+        --numerals overrides the direction and every result records it. The
+        number of spans a system wrote as digits is reported with its score.
+
+    - step: remove_punctuation
+      justification: >
+        Punctuation is not acoustic content, and systems differ in whether
+        they emit it. Marks become word boundaries. Inside a number a decimal
+        point is kept and a digit-group comma removed, so 10,693 stays one token.
+      retains: [decimal_point]
+
+    - step: casefold
+      justification: >
+        Ge'ez has no case, so this applies to embedded Latin only. A
+        capitalized English word inside Amharic is not an error.
+
+    - step: collapse_whitespace
+      justification: >
+        Tokens are split on whitespace. Repeated or trailing whitespace would
+        otherwise produce empty tokens.
+
+  fluent:
+
+    - step: remove_fillers
+      justification: >
+        The inventory's fillers are removed from both sides, so a system that
+        omits them is not counted wrong.
+
+    - step: remove_fragments
+      sides: [reference]
+      justification: >
+        Unfinished words are removed from the reference only. Hypothesis
+        tokens are scored as written.
+
+  verbatim:
+
+    - step: unmark_fragments
+      justification: >
+        A fragment is kept without its marker, so a system that transcribes the
+        partial word matches.
+
+    - step: filler_equivalence
+      justification: >
+        Fillers are equivalent within one language class: እም for እ is correct,
+        English um for Amharic እ is not.
+
+# WER-N: characters equivalent during alignment only; no reference is rewritten.
+# Reported with WER as the orthographic gap, WER − WER-N.
+# A set is declared by series and folds all seven vowel orders (ሀ/ሐ/ኀ folds ሁ/ሑ/ኁ ...).
+# The first member is the target. The eighth, labialized order folds only where
+# both members have one and Unicode names the same vowel.
+wer_n:
+
+  step: fold_orthography
+  justification: >
+    Several Amharic consonant series merged into one sound each. Spelling keeps
+    the members by etymology and writers differ on which to use, so without
+    folding WER counts a spelling choice as a recognition error.
+
+  equivalence_sets:
+
+    - name: h-series
+      members: [ሀ, ሐ, ኀ]
+      unfolded: [ሓ]
+      justification: >
+        All three are [h] in modern Amharic; spelling follows etymology. ሓ is
+        left unfolded: it is not an Amharic spelling of ሃ, ሀ, ሐ, ኻ or ኃ.
+
+    - name: kha-series
+      members: [ሁ, ኹ]
+      orders: [ሁሂሃሄህሆ, ኹኺኻኼኽኾ]
+      unfolded: [ኻ]
+      justification: >
+        Orders 2, 3, 5, 6 and 7 of the ኸ series fold to the ሀ series. ኸ stays
+        distinct, as in published Amharic normalizers. ኻ stays distinct too:
+        it is rare in written Amharic, mostly /x/ in transliterated names
+        (ኻርቱም, ኻሜኒ) or Tigrinya, and absent from the frozen references.
+
+    - name: ha-a-order
+      members: [ሀ, ሃ]
+      orders: [ሀ, ሃ]
+      justification: >
+        ሃ and ሀ are written interchangeably for /ha/. With the h-series, ኃ
+        reaches ሀ through ሃ; ሓ and ኻ do not.
+
+    - name: labialized-go
+      members: [ጎ, ጐ]
+      orders: [ጎ, ጐ]
+      justification: >
+        ጐ is written for ጎ (ጐረቤት, ጎረቤት). ጓ is not folded.
+
+    - name: labialized-ko-qo-ho
+      members: [ቆ, ቈ]
+      orders: [ቆኮሆ, ቈኰኈ]
+      justification: >
+        EthioBench's extension of ጐ→ጎ: ቈ, ኰ and ኈ are written for ቆ, ኮ and ሆ
+        in the same way.
+
+    - name: s-series
+      members: [ሰ, ሠ]
+      justification: >
+        Both are [s]. ሠ is kept by etymology (ሥራ "work").
+
+    - name: ts-series
+      members: [ጸ, ፀ]
+      justification: >
+        One ejective sibilant. Which letter a word takes varies by region and
+        schooling.
+
+    - name: glottal-series
+      members: [አ, ዐ]
+      orders: [አኡኢአኤእኦ, ዐዑዒዓዔዕዖ]
+      justification: >
+        Both are [ʔ]; ዐ is mainly religious and literary. The orders are listed
+        because ዓ folds straight to አ. ኣ is not an Amharic spelling and is left
+        unfolded. ኧ is not folded.
+
+# Not folded: ዉ and ው. Their interchange in references is transcription
+# variance, which folding would hide.
+
+# WER-N loanword layer. Per word: the canonical form, a pattern generating every
+# spelling the linguists ruled the same word, and the established spellings.
+# Folds bare tokens only; affixed forms are counted under spelling_under_affix.
+loanwords:
+  step: normalize_loanwords
+  table: amh_loanwords.tsv
+  profiles: [lenient, strict]
+  justification: >
+    A loanword has no settled fidel spelling, so spellings of one word are
+    folded on both sides. lenient accepts every spelling the pattern
+    generates; strict accepts only those established in edited Ethiopian news
+    text. Both are reported.
+
+# Declared, not applied. Recorded in every result until applied.
+pending:
+
+  - step: normalize_amharic_spelling
+    blocked_by: no agreed table of accepted written forms
+    justification: >
+      Amharic words with more than one accepted spelling beyond character
+      folds.
+
+# Scope: these sets are Amharic's alone. In Tigrinya the same characters are
+# distinct and lexical, so folding there would score wrong characters as correct.
+# A language without its own contract is an error, never a fallback to this file.
