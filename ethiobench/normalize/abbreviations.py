@@ -19,6 +19,7 @@ import re
 from pathlib import Path
 
 _FIDEL = "ሀ-፿"
+KEEP = "="          # spoken cell of an ambiguous abbreviation: kept as written, as one word
 _PREFIXES = "የበለከ"
 # Nominal suffixes that ride on an expanded tail, longest first so ንም is
 # tried before ን. Vowel-order suffixes (ቤት + ኡ → ቤቱ) are the carry rule's.
@@ -79,6 +80,9 @@ class AbbreviationTable:
         def repl(m: re.Match) -> str:
             name = next(g for g in m.groupdict() if g.startswith("r") and m.group(g) is not None)
             spoken = self.entries[int(name[1:])][1]
+            if spoken == KEEP:
+                # Ambiguous: not expanded, but kept as one word so punctuation removal cannot split it.
+                spoken = re.sub(r"[\s./]", "", m.group(name))
             if name in self._carry:
                 spoken = spoken[:-1] + m.group(name)[-1]
             # A marker glued to its number (2008ዓም) is two spoken words; the

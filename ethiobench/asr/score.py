@@ -214,6 +214,7 @@ def score(manifest: list[dict], hypotheses: dict[str, dict], contract: Normaliza
         spans_here = None
         if direction == "as_recorded":
             recorded = row.get("number_spans") or []
+            # Recorded pairs plus parser-derived pairs for unrecorded number words.
             spans_here = spans_for(row["reference_text"], contract.language, recorded)
             _, matched, partial, left = rewrite_recorded(hyp_text, spans_here, contract.language)
             number_counts["reference_spans_recorded"] += len(recorded)

@@ -1,9 +1,10 @@
 """Numeral equivalence: a number counts as equal written as words or as digits.
 
 Three directions, applied identically to both sides. `to_digits` and
-`to_words` use the parser below. `as_recorded` uses no parser: the reference
-keeps the speaker's words and a hypothesis digit token is rewritten to them
-only where it equals the digit form recorded for that span.
+`to_words` rewrite both sides with the parser below. `as_recorded` keeps the
+reference's words and rewrites a hypothesis digit token to them where it equals
+that number's digit form: the form recorded in `number_spans`, or, for number
+words with no recorded form, the parser's reading of them (`spans_for`).
 
 The parser reads place value, scales, teens, decimals, percent, ordinals and
 an attached prefix or case suffix. Ge'ez numerals become digits first. Out of
@@ -477,7 +478,8 @@ def _walk(tokens: list[str], lex: dict):
 
 
 def spans_for(reference_text: str, language: str, recorded: list[dict] | None) -> list[dict]:
-    """Recorded pairs first, then derived pairs for the remaining number words.
+    """Every (digits, words) pair of a reference: each recorded pair, then the parser's
+    reading of every number word no recorded pair covers (marked `derived`).
 
     A derived pair repeating a recorded one is dropped: no double count.
     """

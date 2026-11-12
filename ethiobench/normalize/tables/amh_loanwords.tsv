@@ -1,7 +1,9 @@
-# Amharic loanword table. Per word: the canonical form; a pattern, one
-# alternation set per letter position, anything it generates being the same
-# word (lenient folds it); patterns for other lengths; the strict list, the
-# established spellings (strict folds these only); and the assigned tier.
+# Amharic loanword table. Each row is one word.
+# canonical  the spelling every other spelling folds to.
+# pattern    one set of letters per position. Every spelling it generates is the same word,
+#            and the lenient profile folds all of them. alternative patterns cover other lengths.
+# strict     the established spellings. The strict profile folds these and the canonical form only.
+# tier       the code-switching tier the linguists assigned, or Unruled where none is assigned yet.
 word	canonical	pattern	alternative patterns	strict	tier
 Hello	ሄሎ	ሄሎ		ሄሎ	Code-Switching
 Life	ላይፍ	ላይፍ		ላይፍ	Code-Switching

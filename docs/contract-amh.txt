@@ -7,81 +7,84 @@ BASE  (9 steps, applied in this order)
 ------------------------------------------------------------------------------
 
   1. unicode_nfc
-      One Ge'ez character can be encoded as different code-point sequences. NFC
-      gives each a single form, so text that looks identical compares equal.
+      NFC gives a character a single stored form. Ge'ez characters already have
+      only one, so the step changes only Latin text, such as an accented letter
+      typed two ways.
 
   2. strip_zero_width
-      Zero-width characters carry no text and would otherwise count as token
-      content.
+      Zero-width characters are invisible and carry no text. Left in, they would
+      make two equal words compare unequal.
 
   3. strip_bracket_tags
-      The closed tag set ([unclear:SS.S], [overlap:SS.S], [laughter], [cough],
-      [noise]) marks non-speech and unscoreable regions. Tags are removed in
-      both modes.
+      No reference in these sets carries a bracket tag. The step removes the
+      tags [unclear:SS.S], [overlap:SS.S], [laughter], [cough] and [noise]
+      wherever they occur. None of them is scored as a word.
 
   4. mark_fragments
-      A trailing hyphen marks a word the speaker began and did not finish. The
-      marker is read before punctuation removal deletes it. Fluent mode then
-      drops the token and verbatim mode keeps it without the hyphen.
+      A trailing hyphen marks a word the speaker began and did not finish, as in
+      ከስን-. Punctuation removal would delete the hyphen, so this step marks the
+      word first. Fluent mode then drops it from the reference. Verbatim mode
+      keeps it without the hyphen.
 
   5. expand_abbreviations
-      A reader of 2015 ዓ.ም says ዓመተ ምህረት, and of እ.ኤ.አ says እንደ ኤውሮፓውያን አቆጣጠር.
-      References record the spoken words and systems write either form, so both
-      sides are rewritten to the spoken form before numerals and punctuation.
-      The table lists each abbreviation's written forms (dotted, slashed,
-      dotless, spaced) and the spelling of its expansion in edited Ethiopian
-      news text. Ambiguous abbreviations (ጠ/ሚ, ሚ/ር, አ.አ) are left as written.
-      Where the speaker read out the letters, the reference keeps the
-      abbreviation and both sides expand it alike.
+      Readers say abbreviations in full. A reader of 2015 ዓ.ም says ዓመተ ምህረት, and
+      of እ.ኤ.አ says እንደ ኤውሮፓውያን አቆጣጠር. References record what was said, and
+      systems write either form. Both sides are therefore rewritten to the
+      spoken form. The table lists each written form of an abbreviation, whether
+      dotted, slashed, dotless or spaced. It spells each expansion as edited
+      Ethiopian news text does. Ambiguous abbreviations such as ጠ/ሚ, ሚ/ር and አ.አ
+      are not expanded. Each stays one word, so አ.አ is not read as two fillers.
+      Where a speaker read out the letters, the reference keeps the abbreviation
+      and both sides expand it alike.
 
   6. numerals
-      Each number span in a reference records the words spoken and their digit
-      form, paired by listening to the audio. The reference is not rewritten. A
-      hypothesis in words must match those words: ሁለት ከሰላሳ against ሁለት ሰዓት ተኩል
-      is substitutions. A hypothesis in digits matches only the span's recorded
-      digit form, which is rewritten to the span's words before punctuation
-      removal. Any other digit token stays as written and misses. No parser
-      reads either side. to_digits rewrites both sides to a value with a parser,
-      for sets without recorded spans. --numerals overrides the direction and
-      every result records it. The number of spans a system wrote as digits is
-      reported with its score.
+      References write every number in words. A system that writes the number in
+      other words is wrong. A system may write it in digits instead. The digits
+      are correct when they match the number's digit form. Some numbers have
+      their digit form recorded with the reference, checked against the audio.
+      Where ሁለት ሰዓት ተኩል is recorded as 2:30, 2:30 is correct and ሁለት ከሰላሳ counts
+      as wrong words. For the other numbers, the parser reads the digit form
+      from the words. It reads ዘጠኝ ሰዓት ተኩል only as 9, so 9:30 misses where no
+      form was recorded. Any other digit token counts as a wrong word, Ge'ez
+      numerals such as ፲፭ included. The --numerals option selects another rule,
+      and the report records the choice.
 
   7. remove_punctuation
-      Punctuation is not acoustic content, and systems differ in whether they
-      emit it. Marks become word boundaries. Inside a number a decimal point is
-      kept and a digit-group comma removed, so 10,693 stays one token.
+      Punctuation is not heard, and systems differ in whether they write it.
+      Each mark becomes a word boundary. Inside a number the decimal point stays
+      and a digit-group comma goes, so 10,693 stays one token.
 
   8. casefold
-      Ge'ez has no case, so this applies to embedded Latin only. A capitalized
+      Ge'ez has no case, so this applies to Latin script only. A capitalized
       English word inside Amharic is not an error.
 
   9. collapse_whitespace
-      Tokens are split on whitespace. Repeated or trailing whitespace would
-      otherwise produce empty tokens.
+      Words are split on whitespace. Repeated or trailing spaces would otherwise
+      produce empty words.
 
 ------------------------------------------------------------------------------
 FLUENT  (2 steps, applied in this order)
 ------------------------------------------------------------------------------
 
   1. remove_fillers
-      The inventory's fillers are removed from both sides, so a system that
-      omits them is not counted wrong.
+      Fluent mode removes every filler in the inventory from both sides. A
+      system that leaves fillers out is not counted wrong.
 
   2. remove_fragments
-      Unfinished words are removed from the reference only. Hypothesis tokens
-      are scored as written.
+      Fluent mode removes unfinished words from the reference only. A system's
+      words are scored as written.
 
 ------------------------------------------------------------------------------
 VERBATIM  (2 steps, applied in this order)
 ------------------------------------------------------------------------------
 
   1. unmark_fragments
-      A fragment is kept without its marker, so a system that transcribes the
-      partial word matches.
+      Verbatim mode keeps an unfinished word without its hyphen. A system that
+      transcribes the partial word matches it.
 
   2. filler_equivalence
-      Fillers are equivalent within one language class: እም for እ is correct,
-      English um for Amharic እ is not.
+      In verbatim mode a filler matches another filler of the same language. እም
+      for እ is correct. English um for Amharic እ is wrong.
 
 ------------------------------------------------------------------------------
 WER-N EQUIVALENCE LAYER  (8 sets, 46 folds)
@@ -90,50 +93,52 @@ WER-N EQUIVALENCE LAYER  (8 sets, 46 folds)
   h-series
       members  ሀ ሐ ኀ
       UNFOLDED ሓ  (declared and deliberately not folded)
-      All three are [h] in modern Amharic; spelling follows etymology. ሓ is left
-      unfolded: it is not an Amharic spelling of ሃ, ሀ, ሐ, ኻ or ኃ.
+      ሀ, ሐ and ኀ are all [h] in modern Amharic. A word's spelling follows its
+      history. ሓ stays unfolded because it is not an Amharic spelling of ሃ, ሀ,
+      ሐ, ኻ or ኃ.
 
   kha-series
       members  ሁ ኹ
       orders   ሁሂሃሄህሆ  ኹኺኻኼኽኾ
       UNFOLDED ኻ  (declared and deliberately not folded)
-      Orders 2, 3, 5, 6 and 7 of the ኸ series fold to the ሀ series. ኸ stays
-      distinct, as in published Amharic normalizers. ኻ stays distinct too: it is
-      rare in written Amharic, mostly /x/ in transliterated names (ኻርቱም, ኻሜኒ) or
-      Tigrinya, and absent from the frozen references.
+      The ኸ series folds to the ሀ series in orders 2, 3, 5, 6 and 7. ኸ itself
+      stays distinct. ኻ stays distinct too. It is rare in written Amharic and
+      mostly writes /x/ in names such as ኻርቱም and ኻሜኒ, or in Tigrinya words. It
+      does not occur in the frozen references.
 
   ha-a-order
       members  ሀ ሃ
       orders   ሀ  ሃ
-      ሃ and ሀ are written interchangeably for /ha/. With the h-series, ኃ reaches
-      ሀ through ሃ; ሓ and ኻ do not.
+      ሃ and ሀ are written interchangeably for /ha/. Together with the h-series,
+      this folds ኃ to ሀ. ሓ and ኻ stay unfolded.
 
   labialized-go
       members  ጎ ጐ
       orders   ጎ  ጐ
-      ጐ is written for ጎ (ጐረቤት, ጎረቤት). ጓ is not folded.
+      ጐ is written for ጎ, as in ጐረቤት and ጎረቤት. ጓ is not folded.
 
   labialized-ko-qo-ho
       members  ቆ ቈ
       orders   ቆኮሆ  ቈኰኈ
-      EthioBench's extension of ጐ→ጎ: ቈ, ኰ and ኈ are written for ቆ, ኮ and ሆ in
+      EthioBench extends the ጐ rule. ቈ, ኰ and ኈ are written for ቆ, ኮ and ሆ in
       the same way.
 
   s-series
       members  ሰ ሠ
-      Both are [s]. ሠ is kept by etymology (ሥራ "work").
+      ሰ and ሠ are both [s]. Some words keep ሠ from their history, as in ሥራ
+      "work".
 
   ts-series
       members  ጸ ፀ
-      One ejective sibilant. Which letter a word takes varies by region and
+      ጸ and ፀ are one sound. Which letter a word takes varies by region and
       schooling.
 
   glottal-series
       members  አ ዐ
       orders   አኡኢአኤእኦ  ዐዑዒዓዔዕዖ
-      Both are [ʔ]; ዐ is mainly religious and literary. The orders are listed
-      because ዓ folds straight to አ. ኣ is not an Amharic spelling and is left
-      unfolded. ኧ is not folded.
+      አ and ዐ are both [ʔ]. ዐ appears mainly in religious and literary writing.
+      The orders are listed so that ዓ folds straight to አ. ኣ is not an Amharic
+      spelling and stays unfolded. ኧ is not folded.
 
 ------------------------------------------------------------------------------
 THE RESOLVED FOLD TABLE  (46 characters change)
@@ -161,15 +166,17 @@ LOANWORD LAYER
    step     normalize_loanwords
    table    amh_loanwords.tsv
    profiles ['lenient', 'strict']
-      A loanword has no settled fidel spelling, so spellings of one word are
-      folded on both sides. lenient accepts every spelling the pattern
-      generates; strict accepts only those established in edited Ethiopian news
-      text. Both are reported.
+      A loanword has no settled spelling in fidel. Spellings of one word are
+      folded together on both sides, whole words only. The lenient profile
+      accepts every spelling the table's pattern generates. The strict profile
+      accepts the canonical spelling and the spellings established in edited
+      Ethiopian news text. Both are reported.
 
 ------------------------------------------------------------------------------
 DECLARED BUT NOT APPLIED  (1)
 ------------------------------------------------------------------------------
 
    normalize_amharic_spelling   blocked_by no agreed table of accepted written forms
-      Amharic words with more than one accepted spelling beyond character folds.
+      Some Amharic words have more than one accepted spelling beyond the letter
+      folds. There is no agreed table of them yet.
 

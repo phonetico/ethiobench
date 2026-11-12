@@ -1,8 +1,9 @@
-# Baseline systems as run for EthioBench. Every setting that changes a
-# system's output is declared with its reason; `revision` pins the weights and
-# an unpinned system is refused.
-# Language: set wherever the authors provide a mechanism (Whisper's language
-# token, MMS's adapter), otherwise none.
+# Baseline systems as run for EthioBench-ASR. Each entry declares the settings passed
+# to its system, with a reason field or, for Omnilingual, the comment above the entries.
+# `revision` pins the weights, and an unpinned system is refused. The runner splits audio
+# longer than 30 s, or the system's input limit if lower, into pieces and joins the
+# transcripts. A system is told the language wherever its authors provide a way, such
+# as Whisper's language token or MMS's adapter. Otherwise none is set.
 
 systems:
 
@@ -22,13 +23,13 @@ systems:
       do_sample: false
       max_new_tokens: 440
     decoding_reason: >
-      Greedy: deterministic, the transformers default. The cap sits under
-      Whisper's 448-token limit; an output reaching it is flagged as a likely
-      repetition loop.
+      Greedy decoding is deterministic and the transformers default. The cap
+      sits under Whisper's 448-token limit. An output reaching it is flagged as
+      a likely repetition loop.
     input_limit_s: 30
     input_limit_reason: >
-      Whisper's encoder window. The runner refuses longer audio rather than
-      let the processor truncate it.
+      Whisper's encoder window. Longer audio is split into pieces of at most
+      30 s, and the transcripts are joined.
 
   - id: mms-1b-all
     hf_repo: facebook/mms-1b-all
@@ -39,24 +40,25 @@ systems:
     target_lang: amh
     target_lang_reason: The Amharic adapter and vocabulary, as MMS's documentation requires.
     decoding: {strategy: greedy_argmax}
-    decoding_reason: No language model; greedy CTC is the documented inference path.
+    decoding_reason: No language model. Greedy CTC is the documented inference path.
 
   - id: ethio-asr-multilingual-1b
     hf_repo: badrex/Ethio-ASR-multilingual-1B
     revision: 7f6dd43f388cd16bb70f0f3662dbcfcefedc5560
     family: ctc
     dtype: float32
-    dtype_reason: As mms-1b-all, on which this model is fine-tuned.
+    dtype_reason: Float32, as the other CTC baselines. The model is fine-tuned from facebook/mms-1b.
     target_lang: null
     target_lang_reason: >
       Joint recognition and language identification over five Ethiopian
-      languages; its documented usage passes no language.
+      languages. Its documented usage passes no language.
     decoding: {strategy: greedy_argmax}
     decoding_reason: Greedy CTC, as in the model card's usage example.
     output_language_tags: true
     output_language_tags_reason: >
-      Emits a language tag at both ends ("[AMH] ... ስብሰባ[AMH]"). Stored
-      hypotheses keep the tags; the scorer removes them and reports them.
+      Usually writes a language tag such as [AMH] at the start. Some outputs
+      also carry one at the end or inside the text, and some carry none.
+      Stored hypotheses keep the tags. The scorer removes them and reports them.
 
   - id: ethio-asr-multilingual-600m
     hf_repo: badrex/Ethio-ASR-multilingual-600M
@@ -65,7 +67,7 @@ systems:
     dtype: float32
     dtype_reason: As the other CTC baselines.
     target_lang: null
-    target_lang_reason: As ethio-asr-multilingual-1b; no language mechanism.
+    target_lang_reason: As ethio-asr-multilingual-1b. There is no language setting.
     decoding: {strategy: greedy_argmax}
     decoding_reason: Greedy CTC, as in the model card's usage example.
     output_language_tags: true
@@ -81,7 +83,7 @@ systems:
     dtype: float32
     dtype_reason: As the other CTC baselines.
     target_lang: null
-    target_lang_reason: Monolingual Amharic (w2v-bert-2.0, 600M); no language tags.
+    target_lang_reason: Monolingual Amharic (w2v-bert-2.0, 600M). It writes no language tags.
     decoding: {strategy: greedy_argmax}
     decoding_reason: Greedy CTC, as in the model card's usage example.
     selection_reason: >
@@ -95,7 +97,7 @@ systems:
     dtype: float32
     dtype_reason: As ethio-asr-amharic.
     target_lang: null
-    target_lang_reason: Monolingual Tigrinya model; for the Tigrinya sets only.
+    target_lang_reason: Monolingual Tigrinya model, run on the Tigrinya sets only.
     decoding: {strategy: greedy_argmax}
     decoding_reason: Greedy CTC, as in the model card's usage example.
 
@@ -122,9 +124,9 @@ systems:
     revision: 5f8cc790b19fc3f67a61c105133b20b34e3dcb76
     family: seamless
     dtype: float16
-    dtype_reason: As Whisper, the other autoregressive baseline.
+    dtype_reason: Half precision, as for Whisper.
     tgt_lang: amh
-    tgt_lang_reason: SeamlessM4T speech-to-text requires a target language; transcription sets it to the source.
+    tgt_lang_reason: SeamlessM4T speech-to-text requires a target language. Transcription sets it to the source language.
     decoding:
       num_beams: 1
       do_sample: false
@@ -132,10 +134,11 @@ systems:
     decoding_reason: Greedy and capped as the Whisper baselines.
     selection_reason: Baseline in the Ethio-ASR paper (Table 3). CC-BY-NC-4.0.
 
-  # Omnilingual ASR v2 (Meta, Apache-2.0). `revision` is the checkpoint's
-  # sha256, verified before loading. Pipeline defaults: bfloat16, LLM nbest=1
-  # unnormalized, built-in compression-ratio stop. CTC takes no language code;
-  # LLM models take amh_Ethi, as the authors recommend.
+  # Omnilingual ASR v2 (Meta, Apache-2.0). `revision` is the checkpoint's sha256,
+  # checked before loading. The pipeline defaults are kept. They are bfloat16, LLM
+  # decoding with nbest 1 and no length normalization, and the built-in
+  # compression-ratio stop. CTC models take no language code. LLM models take
+  # amh_Ethi, as the authors recommend.
   - id: omni-ctc-300m-v2
     model_card: omniASR_CTC_300M_v2
     checkpoint_url: https://dl.fbaipublicfiles.com/mms/omniASR-CTC-300M-v2.pt

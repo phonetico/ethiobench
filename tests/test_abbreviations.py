@@ -54,13 +54,21 @@ def test_boundaries(amh):
     assert n("ዓ ም ዐም", amh) == "ዓ ም ዐም"                 # a space is not a separator; dotless ዐም left alone
     assert n("2008ዓም ብሏል", amh) == "2008 ዓመተ ምህረት ብሏል"   # glued to its number
     assert n("የዓ.ም", amh) == "የዓመተ ምህረት"                 # prefix stays attached
-    assert n("ጠ/ሚ ሚ/ር", amh) == "ጠ ሚ ሚ ር"                # ambiguous ones left as written
+    assert n("ጠ/ሚ ሚ/ር", amh) == "ጠሚ ሚር"                  # ambiguous ones not expanded, kept whole
 
 
 def test_suffix_carried_onto_the_expansion(amh):
     assert n("ት/ቤቱ ት/ቤቶች ት/ቤትን", amh) == "ትምህርት ቤቱ ትምህርት ቤቶች ትምህርት ቤትን"
     assert n("ዶ/ሩ ም/ሉ ኮ/ሉ", amh) == "ዶክተሩ ምክትሉ ኮሎኔሉ"
     assert n("ወ/ሮ ወ/ሪት ወ/ት ሌ/ጄነራል ሌ/ኮ", amh) == "ወይዘሮ ወይዘሪት ወይዘሪት ሌተና ጄነራል ሌተና ኮሎኔል"
+
+
+def test_an_ambiguous_abbreviation_stays_one_word(amh):
+    # አ.አ split by punctuation removal would be two fillers, deleted in fluent mode.
+    assert n("አ.አ ሄደ", amh) == "አአ ሄደ"
+    assert n("በአ.አ ኖረ ጠ/ሚ ሚ/ር ረ/ፕ", amh) == "በአአ ኖረ ጠሚ ሚር ረፕ"
+    assert n("ጠ/ሚር ረ/ፕሮፌሰር", amh) == "ጠቅላይ ሚኒስትር ረዳት ፕሮፌሰር"
+    assert n("አ አ ሄደ", amh) == "ሄደ"
 
 
 def test_a_table_row_must_be_a_valid_pattern(tmp_path):

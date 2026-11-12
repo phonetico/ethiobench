@@ -2,20 +2,20 @@
 
 EthioBench is a family of evaluation benchmarks for Ethiopian languages, with the scorer for each in this repository. The current benchmarks cover Amharic (`amh`) and Tigrinya (`tir`).
 
-**[EthioBench-ASR](https://huggingface.co/datasets/phoneticoai/ethiobench-asr)** evaluates speech recognition on 36.2 hours of human-verified speech in six recording conditions: read speech, image description, speak-topic, multi-speaker panel, broadcast monologue, and parliamentary and radio broadcast. Word-level language spans mark code-switching, including Amharic inside Tigrinya. The dataset also holds every baseline system's unedited output and its score report.
+**[EthioBench-ASR](https://huggingface.co/datasets/phoneticoai/ethiobench-asr)** evaluates speech recognition on 36.2 hours of human-verified speech in six recording conditions. They are read speech, image description, speak-topic, multi-speaker panel, broadcast monologue, and parliamentary and radio broadcast. Language spans mark code-switching in five of the sets, including Amharic inside Tigrinya. The dataset also holds every baseline system's unedited output and its score report.
 
-Amharic permits more than one correct spelling of some words, so a WER depends on how both sides are normalized. EthioBench publishes that normalization as a versioned contract per language, and every score names the contract version it was computed under. EthioBench does not run a leaderboard.
+Amharic permits more than one correct spelling of some words, so a WER depends on how both sides are normalized. EthioBench publishes that normalization as a contract per language. Every score report records the contract version, a hash of its rules and a hash of the scorer code. EthioBench does not run a leaderboard.
 
 ## This repository
 
-- `ethiobench.normalize`: the text normalization every benchmark shares (fidel folds, numerals, abbreviations, loanword spellings, punctuation), declared per language in a versioned contract, with the language tables in `ethiobench/normalize/tables/`.
-- `ethiobench.asr`: the EthioBench-ASR scorer. It applies the ASR contract to the reference and a system's transcript, then reports WER, CER and the code-switching metrics. Its contracts are in `ethiobench/asr/contracts/`.
+- `ethiobench.normalize` holds the text normalization every benchmark shares. It covers the fidel folds, numerals, abbreviations, loanword spellings and punctuation. The language tables are in `ethiobench/normalize/tables/`.
+- `ethiobench.asr` is the EthioBench-ASR scorer. It applies the ASR contract to the reference and to a system's transcript, then reports WER, CER and the code-switching metrics. Its contracts are in `ethiobench/asr/contracts/`.
 
 ## Install
 
     pip install -e .
 
-Python 3.10 or later, as `pyproject.toml` declares; tested on 3.12. Runtime dependencies are PyYAML and RapidFuzz.
+Python 3.10 or later, as `pyproject.toml` declares. Tested on 3.12. The runtime dependencies are PyYAML and RapidFuzz.
 
 ## Score an ASR system
 
@@ -23,7 +23,7 @@ Write your system's output as JSONL, one object per segment, keyed by the manife
 
     {"segment_id": "amh-read-0001", "hypothesis": "..."}
 
-Every segment in the manifest needs exactly one hypothesis; a partial file will not be scored as if it were whole. Then:
+Every segment in the manifest needs exactly one hypothesis. A partial file is refused. Then run:
 
     ethiobench-asr score \
       --language amh \
@@ -33,51 +33,49 @@ Every segment in the manifest needs exactly one hypothesis; a partial file will 
 
 `python -m ethiobench.asr score ...` is the same command without the console script.
 
-`--out` is a directory: `report.json` and `segments.jsonl` are written inside it. `--system NAME` sets the name the report uses, which otherwise is the hypothesis file's name.
+`--out` is a directory, and `report.json` and `segments.jsonl` are written inside it. For a plain JSONL file, `--system NAME` sets the name the report uses. Without it the name is the file's name without its extension.
 
-If your system writes language tags in its output, such as `[AMH]`, pass `--strip-language-tags`, and it will remove every two-to-four-capital bracket tag wherever it occurs. Without it each tag is scored as an inserted word. The report will record whether tags were stripped.
+If your system writes language tags such as `[AMH]`, pass `--strip-language-tags`. It removes every bracket tag of two to four capitals wherever it occurs. Without it, each tag is scored as an inserted word. The report records whether tags were stripped.
 
-The code-switching metrics are computed from the manifest's own `language_spans` wherever a set carries them, with no further input. `--numerals {to_digits,to_words,as_recorded,off}` overrides the contract's numeral direction and is recorded in the report.
+The code-switching metrics come from the manifest's own `language_spans`, wherever a set carries them. `--numerals {to_digits,to_words,as_recorded,off}` overrides the contract's numeral rule, and the report records the override.
 
-The toolkit also reads the runner format the published system outputs use, with a header naming the system; for that format, pass `--systems configs/systems.yaml` and the declared revision is checked against the one that ran.
+The toolkit also reads the format of the published system outputs, whose header names the system. For that format, pass `--systems configs/systems.yaml`. The scorer then checks the declared revision against the one that ran. Its language tags are handled as `systems.yaml` declares, so `--strip-language-tags` and `--system` are refused for it.
 
 ## The contract, and how to read it
 
-Each language has one ASR contract: `ethiobench/asr/contracts/amh.yaml` and `tir.yaml`. Every step declares what it does and why, in the order applied. A table a contract names, such as `amh_loanwords.tsv`, is read from `ethiobench/normalize/tables/`.
+Each language has one ASR contract, `ethiobench/asr/contracts/amh.yaml` and `tir.yaml`. Every step says what it does and why, in the order applied. A table a contract names, such as `amh_loanwords.tsv`, is read from `ethiobench/normalize/tables/`.
 
 `python tools/contract_inventory.py amh` prints every transformation a contract applies, the resolved character folds, the filler inventory and the rules declared but not applied. Its output for each language is in `docs/contract-amh.txt` and `docs/contract-tir.txt`.
 
-A result depends on three things the contracts differ on:
+A result depends on three things the contracts differ on.
 
-- **Character folds.** Amharic declares 46. Several consonant series that merged in Amharic are still written with separate characters, therefore two spellings of one word are both correct. WER-N folds them in the metric. Tigrinya declares none because the same characters are distinct sounds there, thus WER-N equals WER.
-- **Numerals.** Amharic references give every number in the words the speaker used and record the digit form beside them, which means a number is correct as those words or as that digit form. Tigrinya rewrites number words and digits to one value on both sides, which accepts any reading of a digit string.
-- **Loanwords.** Amharic applies a table of accepted spellings under two profiles: `lenient` folds anything a pattern generates, `strict` only the spellings established in edited Ethiopian news text. Both are reported. Tigrinya has no table and applies none.
+- **Character folds.** Some Amharic letters are written differently for the same sound, so two spellings of one word are both correct. WER-N treats such letters as the same. The Amharic contract declares eight sets, which give 46 folds. Tigrinya declares none, because the same letters write distinct sounds there. Its WER-N equals its WER.
+- **Numerals.** Amharic references write every number in words. A number a system writes in digits is correct when it matches the number's digit form. Some digit forms were recorded with the reference and checked against the audio. For the other numbers, the parser reads the digit form from the words. Tigrinya instead rewrites number words and digits to one value on both sides. In both languages the parser covers the readings its vocabulary composes, and a reading outside it is scored as written.
+- **Loanwords.** Amharic applies a table of accepted spellings under two profiles. `lenient` folds every spelling a pattern generates. `strict` folds the canonical spelling and the spellings established in edited Ethiopian news text. Both fold whole words only. Both are reported. Tigrinya has no table and applies none.
 
 ## Reporting a result
 
-Every report records the contract version it was computed under. Quote it with the number, along with any `--numerals` override and the profile, and the set revision you scored, which every manifest row carries as `reference_revision` and the report records under `stamp.reference_revision`. Because segment ids are numbered within a version, score a hypothesis file only against the manifest of the version it was made for. The published system outputs name their version in the header, and the scorer refuses one scored against another version; a plain `{segment_id, hypothesis}` file carries no version. You will want to do that check yourself. Do note, that a WER without its contract version is not comparable with another one.
+Quote the contract version with every number, and any `--numerals` override and the loanword profile. Quote also the set revision you scored. Every manifest row carries it as `reference_revision`, and the report lists it under `stamp.reference_revision`. The report also records the contract's `rules_sha256` and a hash of every scorer file, under `stamp.contract` and `stamp.scorer_code_sha256`. Two results computed under the same contract version but different scorer code can differ, so compare those hashes too.
 
-Rules a contract commits to but does not yet apply are listed under `pending`, and are recorded in every result:
+Segment ids are numbered within a set version. Score a hypothesis file only against the manifest of the version it was made for. The published system outputs name their version in the header, and the scorer refuses one scored against another version. A plain `{segment_id, hypothesis}` file carries no version, so that check is yours to make.
+
+Rules a contract declares but does not yet apply are listed under `pending`, and every result records them:
 
     amh    normalize_amharic_spelling   no agreed table of accepted written forms
     tir    normalize_loanwords          no Tigrinya variant table
 
-## The closed sets
+## The filler inventory
 
-Bracket tags in a reference. `[unclear]` and `[overlap]` carry the duration of the stretch they mark in seconds, as `SS.S`; the other three carry none:
-
-    [unclear:SS.S] [overlap:SS.S] [laughter] [cough] [noise]
-
-Filler inventory, per language and per class. Fillers are equivalent only within a class, so an English `um` is never an Amharic `እ`:
+Per language and per class:
 
     amh   amh: እ እም አ      eng: um uh     (version 1.0-provisional)
     tir   tir: እ እም        eng: um uh     (version tir-observed-1.0)
 
-The Amharic filler inventory is provisional. The Tigrinya inventory contains the fillers observed in the verified references.
+Fluent mode removes every listed filler from both sides. In verbatim mode a filler matches only another filler of its class, so an English `um` never matches an Amharic `እ`. The Amharic inventory is provisional. The Tigrinya class lists እ and እም, the fillers written in the verified references. Standalone አ also occurs as a filler in Tigrinya panel and is not listed yet. The English class is the same as Amharic's.
 
 ## Contributing
 
-A rule change is a contract change: it needs a version bump, a justification string saying what it does and why, and a test. Open an issue describing the spelling or reading at stake and the evidence for it before writing the rule. Scores already published under an earlier version stay valid for that version.
+Open an issue for a rule change. Describe the spelling or reading at stake and the evidence for it. A change ships with its justification in the contract and a test.
 
 ## Licence
 

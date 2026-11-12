@@ -23,8 +23,8 @@ def test_rules_hash_ignores_prose_and_follows_rules(tmp_path):
     shutil.copy(CONTRACT_DIR / "tir.yaml", tmp_path / "tir.yaml")
     base = load_contract("tir").rules_sha256
     text = (tmp_path / "tir.yaml").read_text(encoding="utf-8")
-    prose = text.replace("Fillers are equivalent within one language class.",
-                         "Fillers count as equal within one language class.")
+    prose = text.replace("a filler matches another filler of the same language.",
+                         "a filler counts as equal to another of the same language.")
     assert prose != text
     (tmp_path / "tir.yaml").write_text(prose, encoding="utf-8")
     import yaml

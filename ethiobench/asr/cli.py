@@ -42,6 +42,10 @@ def cmd_score(args: argparse.Namespace) -> int:
         print("REFUSED: --strip-language-tags is for hypotheses with no header; a runner "
               f"output's tags are declared in {args.systems}", file=sys.stderr)
         return 2
+    elif args.system:
+        print(f"REFUSED: --system is for hypotheses with no header; {args.hypotheses} names "
+              f"system {system_id!r}", file=sys.stderr)
+        return 2
     else:
         if not args.systems:
             print(f"REFUSED: {args.hypotheses} names system {system_id!r}; pass --systems to "
@@ -91,6 +95,8 @@ def cmd_score(args: argparse.Namespace) -> int:
             # the file. A list, so a manifest mixing revisions says so.
             "reference_revision": sorted({r.get("reference_revision") for r in manifest
                                           if r.get("reference_revision")}) or None,
+            # The set version the hypotheses name, null when they name none: scored, not refused.
+            "hypotheses_reference_revision": made_for,
             "manifest_sha256_at_inference": header.get("manifest_sha256"),
             "spans": str(args.spans) if args.spans else None,
             "spans_sha256": scoring.sha256(args.spans) if args.spans else None,
@@ -144,12 +150,13 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--numerals", choices=("to_digits", "to_words", "as_recorded", "off"), default=None,
                    help="override the contract's numeral direction; recorded in the report")
     s.add_argument("--spans", type=Path, default=None,
-                   help="language spans JSONL (tools/sql/language_spans.sql); enables code-switching metrics")
+                   help="language spans JSONL keyed by segment, for a manifest without its own "
+                        "language_spans; enables the code-switching metrics")
     s.set_defaults(func=cmd_score)
     args = ap.parse_args(argv)
     try:
         return args.func(args)
-    except config.ContractError as exc:
+    except (config.ContractError, scoring.ScoringError) as exc:
         print(f"REFUSED: {exc}", file=sys.stderr)
         return 2
 

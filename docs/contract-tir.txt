@@ -7,56 +7,68 @@ BASE  (8 steps, applied in this order)
 ------------------------------------------------------------------------------
 
   1. unicode_nfc
-      One Ge'ez character can be encoded as different code-point sequences. NFC
-      gives each a single form, so text that looks identical compares equal.
+      NFC gives a character a single stored form. Ge'ez characters already have
+      only one, so the step changes only Latin text, such as an accented letter
+      typed two ways.
 
   2. strip_zero_width
-      Zero-width characters carry no text and would otherwise count as token
-      content.
+      Zero-width characters are invisible and carry no text. Left in, they would
+      make two equal words compare unequal.
 
   3. strip_bracket_tags
-      The closed bracket tags mark non-speech and unscoreable regions. Tags are
-      removed in both modes.
+      No reference in these sets carries a bracket tag. The step removes the
+      tags [unclear:SS.S], [overlap:SS.S], [laughter], [cough] and [noise]
+      wherever they occur. None of them is scored as a word.
 
   4. mark_fragments
-      A trailing hyphen marks a word the speaker began and did not finish. The
-      marker is read before punctuation removal deletes it.
+      A trailing hyphen marks a word the speaker began and did not finish, as in
+      ምኽንያ-. Punctuation removal would delete the hyphen, so this step marks the
+      word first.
 
   5. numerals
-      Number words and digits are rewritten to one value on both sides before
-      punctuation removal, so any reading of a digit string is accepted. The
-      Tigrinya references record no digit form, which as_recorded needs.
-      --numerals selects to_words or off and every result records it.
+      Number words and digits are rewritten to one value on both sides. A number
+      then counts as correct whether it is written in words or in digits. ክልተ ሽሕ
+      ዓሰርተ ሓሙሽተ and 2015 both become 2015. The parser reads the number words it
+      knows. A reading it does not compose stays apart, so ዕስራ ዓሰርተ ሓሙሽተ becomes
+      20 15 and does not match 2015. The Tigrinya references have no recorded
+      digit forms, which as_recorded needs. The --numerals option selects
+      to_words or off, and the report records the choice.
 
   6. remove_punctuation
-      Punctuation is not acoustic content. Marks become word boundaries. Inside
-      a number a decimal point is kept and a digit-group comma removed.
+      Punctuation is not heard, and systems differ in whether they write it.
+      Each mark becomes a word boundary. Inside a number the decimal point stays
+      and a digit-group comma goes.
 
   7. casefold
-      Ge'ez has no case, so this applies to embedded Latin only.
+      Ge'ez has no case, so this applies to Latin script only.
 
   8. collapse_whitespace
-      Tokens are split on whitespace.
+      Words are split on whitespace. Repeated or trailing spaces would otherwise
+      produce empty words.
 
 ------------------------------------------------------------------------------
 FLUENT  (2 steps, applied in this order)
 ------------------------------------------------------------------------------
 
   1. remove_fillers
-      The inventory's fillers are removed from both sides.
+      Fluent mode removes every filler in the inventory from both sides. A
+      system that leaves fillers out is not counted wrong.
 
   2. remove_fragments
-      Unfinished words are removed from the reference only.
+      Fluent mode removes unfinished words from the reference only. A system's
+      words are scored as written.
 
 ------------------------------------------------------------------------------
 VERBATIM  (2 steps, applied in this order)
 ------------------------------------------------------------------------------
 
   1. unmark_fragments
-      A fragment is kept without its marker.
+      Verbatim mode keeps an unfinished word without its hyphen. A system that
+      transcribes the partial word matches it.
 
   2. filler_equivalence
-      Fillers are equivalent within one language class.
+      In verbatim mode a filler matches another filler of the same language. እም
+      for እ is correct. English um for Tigrinya እ is wrong.
 
 ------------------------------------------------------------------------------
 WER-N EQUIVALENCE LAYER  (0 sets, 0 folds)

@@ -73,6 +73,39 @@ def test_an_output_made_against_another_set_version_is_refused(tmp_path):
                          "--systems", str(s), "--out", str(tmp_path / f"o{made_for}")]) == code
 
 
+def test_an_output_naming_no_set_version_is_scored_and_recorded(tmp_path):
+    m, h, s, out = tmp_path / "m.jsonl", tmp_path / "h.jsonl", tmp_path / "systems.yaml", tmp_path / "o"
+    write_jsonl(m, [{**published_row("s1", "ሰላም"), "reference_revision": "1.0"}])
+    s.write_text("systems:\n  - id: sys\n    revision: abc\n", encoding="utf-8")
+    write_jsonl(h, [{"record": "header", "system": {"id": "sys", "revision": "abc"}},
+                    {"record": "hypothesis", "segment_id": "s1", "hypothesis": "ሰላም"},
+                    {"record": "summary", "complete": True}])
+    assert cli.main(["score", "--language", "amh", "--manifest", str(m), "--hypotheses", str(h),
+                     "--systems", str(s), "--out", str(out)]) == 0
+    stamp = json.loads((out / "report.json").read_text(encoding="utf-8"))["stamp"]
+    assert stamp["hypotheses_reference_revision"] is None and stamp["reference_revision"] == ["1.0"]
+
+
+def test_an_unreadable_hypothesis_file_is_refused_not_raised(tmp_path, capsys):
+    m, h = tmp_path / "m.jsonl", tmp_path / "h.jsonl"
+    write_jsonl(m, [published_row("s1", "ሰላም")])
+    write_jsonl(h, [{"segment_id": "s1", "hypothesis": "x"}, {"segment_id": "s1", "hypothesis": "y"}])
+    assert cli.main(["score", "--language", "amh", "--manifest", str(m), "--hypotheses", str(h),
+                     "--out", str(tmp_path / "o")]) == 2
+    assert "REFUSED" in capsys.readouterr().err
+
+
+def test_system_name_is_refused_for_a_runner_output(tmp_path):
+    m, h, s = tmp_path / "m.jsonl", tmp_path / "h.jsonl", tmp_path / "systems.yaml"
+    write_jsonl(m, [published_row("s1", "ሰላም")])
+    s.write_text("systems:\n  - id: sys\n    revision: abc\n", encoding="utf-8")
+    write_jsonl(h, [{"record": "header", "system": {"id": "sys", "revision": "abc"}},
+                    {"record": "hypothesis", "segment_id": "s1", "hypothesis": "ሰላም"},
+                    {"record": "summary", "complete": True}])
+    assert cli.main(["score", "--language", "amh", "--manifest", str(m), "--hypotheses", str(h),
+                     "--systems", str(s), "--system", "other", "--out", str(tmp_path / "o")]) == 2
+
+
 def test_systems_yaml_is_refused_for_a_headerless_file(tmp_path):
     m, h, s = tmp_path / "m.jsonl", tmp_path / "h.jsonl", tmp_path / "systems.yaml"
     write_jsonl(m, [published_row("s1", "ሰላም")])

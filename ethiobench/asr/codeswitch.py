@@ -8,7 +8,7 @@ accuracy.
 
 CAVEATS, recorded in every report: sets without spans get no metrics; spans
 carry only a language tag, so insertion and alternation are split by span
-length; some spans are machine-propagated.
+length.
 
 Tagging runs on the raw reference, where span offsets are valid, then each raw
 word is normalized alone and aligned to the whole-text normalization, so a
@@ -322,7 +322,7 @@ def summarize(total: SegmentCS, *, items: int, items_with_spans: int) -> dict:
 
 
 CAVEATS = [
-    "Spans come from the transcription tool and are partly machine-propagated by the platform auto-tagger.",
+    "Annotators mark the spans at word level in the transcription tool.",
     "No tier or cs_type is stored per span. PIER counts every English-tagged point; pier_switches removes the "
     "points that only an established borrowing made interesting, using the tier the contract's loanword table "
     "gives the word (bare or under known affixes), so a borrowing outside the table is still counted. A "

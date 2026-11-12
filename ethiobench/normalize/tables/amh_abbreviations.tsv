@@ -1,12 +1,10 @@
-# Amharic abbreviation table for the expand_abbreviations step. Writing
-# abbreviates and speech does not, so an abbreviation on either side is
-# rewritten to its spoken form before scoring.
+# Amharic abbreviation table for the expand_abbreviations step. Writing abbreviates and
+# speech does not. An abbreviation on either side is rewritten to its spoken form.
 #
-# written  a regex over the written forms of one abbreviation, `.` and `/`
-#          being the separators. Matched inside word boundaries, with a
-#          one-letter prefix allowed and a suffix's vowel change carried onto
-#          the expansion (ት/ቤቱ → ትምህርት ቤቱ).
-# spoken   the expansion, in the spelling edited Ethiopian news text uses.
+# written  a regex over the written forms of one abbreviation, with . and / as separators.
+#          It matches inside word boundaries. A one-letter prefix may attach, and a suffix's
+#          vowel change carries onto the expansion, so ት/ቤቱ becomes ትምህርት ቤቱ.
+# spoken   the expansion, spelled as edited Ethiopian news text spells it.
 # note     what the pattern covers, and why the expansion is spelled so.
 written	spoken	note
 (?:ዓ(?:[ \t]*[./][ \t]*)?|ዐ[ \t]*[./][ \t]*)ም\.?	ዓመተ ምህረት	Ethiopian era marker. Covers ዓ.ም ዓ.ም. ዓ/ም ዓም ዓም. and the separated ዐ-initial writings (ዐ.ም, ዐ/ም), with spaces around the separator (ዓ. ም.). A bare space with no separator is not a marker, and the dotless ዐም is left alone: it is rare in writing and ዐ folds to አ, which would make አም a marker. The spelling ምህረት is the majority in edited Ethiopian news text and in written Amharic at large; ምሕረት is the minority and folds to it under WER-N.
@@ -33,3 +31,7 @@ written	spoken	note
 ኮ/ል	ኮሎኔል	Colonel.
 ዲ/ን	ዲያቆን	Deacon.
 ጠ/ሚር	ጠቅላይ ሚኒስትር	Prime minister; ጠ/ሚ without the ር is ambiguous between the person and the ministry and is not expanded. ሚ/ር (ሚኒስትር or ሚስተር) and አ.አ (አዲስ አበባ or initials) are likewise left alone.
+ጠ[ \t]*/[ \t]*ሚ	=	Ambiguous between the prime minister and the ministry. Kept as one word.
+ሚ[ \t]*/[ \t]*ር	=	Ambiguous between ሚኒስትር and ሚስተር. Kept as one word.
+አ[ \t]*[./][ \t]*አ\.?	=	Ambiguous between አዲስ አበባ and initials. Kept as one word, so it is not read as two fillers.
+ረ[ \t]*/[ \t]*ፕ	=	Ambiguous between ረዳት ፕሮፌሰር and ፕሬዚዳንት. Kept as one word.
